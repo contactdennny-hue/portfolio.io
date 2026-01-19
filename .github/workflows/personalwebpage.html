@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Denise Marie Gonzales | Portfolio</title>
+
+<!-- META TAGS (STEP 1) -->
+<meta name="description" content="Personal portfolio of Denise Marie Gonzales featuring artworks, blogs, projects, and creative work.">
+<meta name="keywords" content="Denise Gonzales, portfolio, student portfolio, art, blogs, creative projects">
+<meta name="author" content="Denise Marie Gonzales">
+
+<meta property="og:title" content="Denise Marie Gonzales | Portfolio">
+<meta property="og:description" content="A personal portfolio showcasing art, writing, and creative projects.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://picsum.photos/id/1015/1600/900">
+
+</head>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+* { box-sizing:border-box; scroll-behavior:smooth; }
+body { margin:0; font-family:'Poppins',sans-serif; background:#1c1c1c; color:#fff; overflow-x:hidden; position:relative; }
+
+/* Banner */
+.header {
+  height:60vh; 
+  background:url('https://www.awn.com/sites/default/files/styles/original/public/image/attached/1060287-wamenv50101newdelhyorkdesignv020akevin-1280.jpg?itok=o7vgEkAz') center/cover no-repeat;
+  display:flex; justify-content:center; align-items:center; text-align:center; position:relative; z-index:1;
+}
+
+/* Navbar */
+.topnav { background-color: rgba(255,0,0,0.9); position:sticky; top:0; z-index:999; display:flex; justify-content:center; }
+.topnav a { color:#fff; text-decoration:none; padding:15px 25px; font-weight:600; transition:0.3s; position:relative; overflow:hidden; }
+.topnav a:hover, .topnav a.active { color:#1c1c1c; background:#ffd700; border-radius:8px; transform:scale(1.1); }
+.topnav a::after { content:''; position:absolute; width:100%; height:100%; top:0; left:-100%; background:rgba(255,255,255,0.2); transition:0.4s; }
+.topnav a:hover::after { left:0; }
+
+/* Artworks Gallery */
+#artworks {
+  height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+.art-gallery-wrapper {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+.art-gallery {
+  display: flex;
+  height: 100%;
+  flex: 1;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  cursor: grab;
+  scroll-snap-type: x mandatory;
+}
+.art-gallery::-webkit-scrollbar { height: 12px; }
+.art-gallery::-webkit-scrollbar-thumb { background: #ffcc00; border-radius: 10px; }
+.art-card {
+  flex: 0 0 100%;
+  height: 100%;
+  border-radius: 18px;
+  background-size: cover;
+  background-position: center;
+  scroll-snap-align: start;
+  transition: transform 0.4s, box-shadow 0.4s;
+}
+.art-card:hover { transform: scale(1.05) translateY(-5px); box-shadow:0 12px 35px rgba(0,0,0,0.3); }
+.arrow-btn {
+  background:#ff0000; color:#fff; border:none; border-radius:50%;
+  width:60px; height:60px; font-size:28px; cursor:pointer;
+}
+
+/* Layout */
+.row { display:flex; flex-wrap:wrap; padding:40px 20px; gap:30px; }
+.leftcolumn { flex:3; min-width:300px; display:flex; flex-direction:column; gap:30px; }
+.rightcolumn { flex:1; min-width:250px; display:flex; flex-direction:column; gap:20px; }
+
+/* Cards */
+.card {
+  background:#1e1e1e; padding:25px; border-radius:18px;
+  box-shadow:0 6px 20px rgba(0,0,0,0.4);
+  opacity:0; transform:translateY(30px); transition:0.6s;
+}
+.card h2,h3{ color:#ffcc00; }
+
+/* Footer */
+.footer {
+  text-align:center;
+  padding:30px;
+  background:#1e1e1e;
+  color:#ffd700;
+  border-top:2px solid #ff0000;
+}
+</style>
+
+
+<body>
+
+<!-- Banner -->
+<div class="header"></div>
+
+<!-- Navbar -->
+<div class="topnav">
+  <a href="#artworks">Artworks</a>
+  <a href="#blogs">Blogs</a>
+  <a href="#about">About</a>
+</div>
+
+<!-- Artworks Gallery -->
+<div id="artworks">
+  <div class="art-gallery-wrapper">
+    <button class="arrow-btn" onclick="scrollGallery(-1)">&#8592;</button>
+    <div class="art-gallery" id="gallery">
+      <div class="art-card" style="background-image:url('https://picsum.photos/id/1015/1600/900');"></div>
+      <div class="art-card" style="background-image:url('https://picsum.photos/id/1025/1600/900');"></div>
+      <div class="art-card" style="background-image:url('https://picsum.photos/id/1035/1600/900');"></div>
+      <div class="art-card" style="background-image:url('https://picsum.photos/id/1045/1600/900');"></div>
+      <div class="art-card" style="background-image:url('https://picsum.photos/id/1055/1600/900');"></div>
+    </div>
+    <button class="arrow-btn" onclick="scrollGallery(1)">&#8594;</button>
+  </div>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  <p>© 2025 Denise’s Portfolio. Crafted with comic vibrance.</p>
+</div>
+
+<script>
+const gallery = document.getElementById('gallery');
+function scrollGallery(dir){
+  gallery.scrollBy({ left: dir * gallery.clientWidth, behavior: 'smooth' });
+}
+</script>
+
+</body>
+</html>
