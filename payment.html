@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Payment — Netflix Demo</title>
+  <style>
+    :root{--bg:#0b0b0b;--fg:#fff;--muted:#9a9a9a;--accent:#e50914}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Inter,Arial,sans-serif;background:linear-gradient(180deg,#000,#111);color:var(--fg);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem}
+    .wrap{display:flex;gap:2rem;align-items:flex-start}
+    .plan{background:#111;padding:1.2rem;border-radius:.6rem;width:300px}
+    .form{background:#0d0d0d;padding:1.2rem;border-radius:.6rem;width:420px}
+    .plan h3{margin-bottom:.6rem}
+    .plan p{color:var(--muted);margin-bottom:.6rem}
+    label{display:block;color:var(--muted);font-size:.9rem;margin-top:.6rem}
+    input, select{width:100%;padding:.65rem;border-radius:.4rem;border:none;margin-top:.35rem}
+    .btn{margin-top:1rem;background:var(--accent);color:#fff;padding:.7rem;border-radius:.45rem;border:none;cursor:pointer;width:100%}
+    .hint{font-size:.85rem;color:var(--muted);margin-top:.6rem}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="plan">
+      <h3>Choose a plan</h3>
+      <div>
+        <label><input type="radio" name="plan" value="149" checked> ₱149 — Basic (SD)</label>
+        <label><input type="radio" name="plan" value="369"> ₱369 — Standard (HD)</label>
+        <label><input type="radio" name="plan" value="549"> ₱549 — Premium (Ultra HD)</label>
+      </div>
+      <p class="hint">Demo payments do not charge a real card. Payment here will mark the account as subscribed in localStorage.</p>
+    </div>
+
+    <div class="form">
+      <h2>Payment details</h2>
+      <div id="pendingInfo" style="color:var(--muted);margin-bottom:.6rem"></div>
+
+      <form id="payForm">
+        <label>Cardholder name</label>
+        <input id="cardName" type="text" required placeholder="Name on card">
+
+        <label>Card number</label>
+        <input id="cardNumber" type="text" inputmode="numeric" maxlength="19" placeholder="1234 5678 9012 3456" required>
+
+        <label>Expiry</label>
+        <input id="expiry" type="month" required>
+
+        <label>CVV</label>
+        <input id="cvv" type="password" maxlength="4" required>
+
+        <button class="btn" type="submit">Pay & Activate</button>
+      </form>
+
+      <div style="margin-top:.8rem;color:var(--muted);font-size:.9rem">
+        Already paid? <a href="login.html" style="color:var(--accent)">Sign in</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function loadUsers(){ return JSON.parse(localStorage.getItem('nf_users') || '{}'); }
+    function saveUsers(obj){ localStorage.setItem('nf_users', JSON.stringify(obj)); }
+
+    const pending = localStorage.getItem('nf_pending_email');
+    const pendingInfo = document.getElementById('pendingInfo');
+
+    if (!pending) {
+      pendingInfo.textContent = 'No account pending payment. If you created one, please sign up first.';
+    } else {
+      const users = loadUsers();
+      pendingInfo.textContent = `Activating subscription for: ${pending} (${users[pending]?.name || 'New User'})`;
+    }
+
+    document.getElementById('payForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      if (!pending) {
+        alert('No pending signup found. Please create an account first.');
+        return location.href = 'signup.html';
+      }
+
+      // Basic validation (card format not enforced strongly)
+      const cardNum = document.getElementById('cardNumber').value.replace(/\s+/g,'');
+      if (cardNum.length < 12) { alert('Please enter a valid card number.'); return; }
+
+      // process payment (simulated)
+      const users = loadUsers();
+      if (!users[pending]) {
+        alert('User not found. Please sign up again.');
+        localStorage.removeItem('nf_pending_email');
+        return location.href = 'signup.html';
+      }
+
+      // mark subscribed and set plan + mock transaction id
+      const selectedPlan = document.querySelector('input[name="plan"]:checked').value;
+      users[pending].subscribed = true;
+      users[pending].plan = selectedPlan;
+      users[pending].subscribedAt = Date.now();
+      users[pending].txn = 'TXN-' + Math.random().toString(36).slice(2,10).toUpperCase();
+
+      saveUsers(users);
+
+      // clear pending flag and redirect to login
+      localStorage.removeItem('nf_pending_email');
+      alert('Payment successful! Your subscription is activated. You will be redirected to the sign-in page.');
+      location.href = 'login.html';
+    });
+  </script>
+</body>
+</html>

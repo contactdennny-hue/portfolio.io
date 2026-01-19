@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>NETFLIX — Welcome</title>
+  <style>
+    :root{--bg:#141414;--fg:#fff;--muted:#9a9a9a;--accent:#e50914}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Inter,Arial,sans-serif;background:linear-gradient(180deg,#000,#111 40%);color:var(--fg);min-height:100vh;display:flex;flex-direction:column}
+    .nav{display:flex;align-items:center;justify-content:space-between;padding:1.2rem 2rem;position:sticky;top:0;background:transparent;z-index:10}
+    .brand{font-weight:800;color:var(--accent);font-size:1.6rem}
+    .cta{display:flex;gap:.6rem}
+    .btn{background:var(--accent);color:#fff;padding:.6rem 1rem;border-radius:.35rem;border:none;cursor:pointer;font-weight:700}
+    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,.08)}
+    .hero{display:flex;align-items:center;gap:3rem;padding:4rem;flex-wrap:wrap}
+    .hero-left{max-width:740px}
+    .hero h1{font-size:3.6rem;margin-bottom:.6rem;letter-spacing:1px}
+    .hero p{color:var(--muted);font-size:1.05rem;margin-bottom:1.25rem}
+    .email-get-started{display:flex;gap:.5rem;flex-wrap:wrap}
+    .email-get-started input{padding:.9rem 1rem;border-radius:.35rem;border:none;min-width:300px}
+    .email-get-started .btn{padding:.85rem 1.1rem}
+    .hero-poster img{width:300px;border-radius:.6rem;box-shadow:0 20px 50px rgba(0,0,0,.6)}
+    footer{margin-top:auto;padding:2rem;text-align:center;color:var(--muted);font-size:.9rem}
+    @media (max-width:820px){ .hero{padding:2rem;gap:1rem}.hero h1{font-size:2.2rem} .hero-poster{order:-1} }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="brand">NETFLIX</div>
+    <div class="cta">
+      <button class="btn ghost" onclick="location.href='login.html'">Sign In</button>
+      <button class="btn" onclick="location.href='signup.html'">Sign Up</button>
+    </div>
+  </nav>
+
+  <main class="hero">
+    <div class="hero-left">
+      <h1>Unlimited movies, TV shows, and more.</h1>
+      <p>Watch anywhere. Cancel anytime. Ready to watch? Create an account to get started.</p>
+
+      <div class="email-get-started" style="margin-top:8px;">
+        <input id="emailQuick" type="email" placeholder="Enter your email" />
+        <button class="btn" id="getStarted">Get Started</button>
+      </div>
+      <p style="color:var(--muted);margin-top:.8rem;font-size:.95rem">Already have an account? <a href="login.html" style="color:var(--fg);text-decoration:underline">Sign in</a></p>
+    </div>
+
+    <div class="hero-poster">
+      <img src="https://m.media-amazon.com/images/I/81p+xe8cbnL._AC_SY679_.jpg" alt="Featured">
+    </div>
+  </main>
+
+  <footer>
+    This is a demo project — payment is simulated and accounts are stored in localStorage for demo purposes.
+  </footer>
+
+  <script>
+    document.getElementById('getStarted').addEventListener('click', () => {
+      const email = document.getElementById('emailQuick').value.trim();
+      if (!email || !email.includes('@')) {
+        alert('Please enter a valid email.');
+        return;
+      }
+      // Pre-fill signup with email
+      localStorage.setItem('preFillEmail', email);
+      location.href = 'signup.html';
+    });
+  </script>
+</body>
+</html>

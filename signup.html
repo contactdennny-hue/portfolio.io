@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Sign Up — Netflix Demo</title>
+  <style>
+    :root{--bg:#111;--fg:#fff;--accent:#e50914;--muted:#9a9a9a}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Inter,Arial,sans-serif;background:linear-gradient(180deg,#000,#111);color:var(--fg);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem}
+    .card{background:#0d0d0d;padding:2rem;border-radius:.6rem;width:420px;box-shadow:0 20px 60px rgba(0,0,0,.7)}
+    h2{margin-bottom:1rem}
+    label{display:block;color:var(--muted);font-size:.9rem;margin-top:.65rem}
+    input{width:100%;padding:.8rem;border-radius:.45rem;border:none;margin-top:.35rem}
+    .row{display:flex;gap:.6rem;margin-top:1rem}
+    .btn{flex:1;background:var(--accent);color:#fff;padding:.7rem;border-radius:.45rem;border:none;cursor:pointer;font-weight:700}
+    .link{display:block;text-align:center;margin-top:1rem;color:var(--muted)}
+    .small{font-size:.85rem;color:var(--muted);margin-top:.6rem}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Create your account</h2>
+    <form id="signupForm">
+      <label>Full name</label>
+      <input id="fullName" type="text" required placeholder="Your full name" />
+      <label>Email</label>
+      <input id="email" type="email" required placeholder="you@example.com" />
+      <label>Password</label>
+      <input id="password" type="password" required placeholder="Create a password" />
+      <div class="small">Password must be at least 6 characters.</div>
+      <div class="row">
+        <button class="btn" type="submit">Continue</button>
+      </div>
+    </form>
+
+    <div class="link">
+      Already registered? <a href="login.html" style="color:var(--accent)">Sign in</a>
+    </div>
+  </div>
+
+  <script>
+    // read preFillEmail if user clicked Get Started on home
+    const pre = localStorage.getItem('preFillEmail');
+    if (pre) document.getElementById('email').value = pre;
+
+    // helper: simple obfuscation of password (NOT real hashing)
+    function obfuscate(p){ return btoa(p); }
+
+    // store users as object in localStorage under key 'nf_users'
+    function loadUsers(){ return JSON.parse(localStorage.getItem('nf_users') || '{}'); }
+    function saveUsers(obj){ localStorage.setItem('nf_users', JSON.stringify(obj)); }
+
+    document.getElementById('signupForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      const name = document.getElementById('fullName').value.trim();
+      const email = document.getElementById('email').value.trim().toLowerCase();
+      const password = document.getElementById('password').value;
+
+      if (!name || !email || password.length < 6) {
+        alert('Please complete the form. Password must be at least 6 characters.');
+        return;
+      }
+
+      const users = loadUsers();
+      if (users[email]) {
+        if (!confirm('An account with this email already exists. Do you want to go to login?')) return;
+        localStorage.removeItem('preFillEmail');
+        location.href = 'login.html';
+        return;
+      }
+
+      // create user object: {name, password(obf), subscribed:false}
+      users[email] = {name, password: obfuscate(password), subscribed:false, createdAt: Date.now()};
+      saveUsers(users);
+
+      // set pending user and redirect to payment
+      localStorage.setItem('nf_pending_email', email);
+      localStorage.removeItem('preFillEmail');
+      alert('Account created! Proceed to payment to activate your subscription.');
+      location.href = 'payment.html';
+    });
+  </script>
+</body>
+</html>

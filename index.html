@@ -1,0 +1,256 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Netflix — Browse</title>
+
+  <style>
+    :root{--bg:#000;--fg:#fff;--muted:#9a9a9a;--accent:#e50914;--card:#111}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Inter,Arial,sans-serif;background:var(--bg);color:var(--fg);-webkit-font-smoothing:antialiased}
+    a{color:inherit;text-decoration:none}
+
+    .nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;background:linear-gradient(180deg,#111,transparent);position:sticky;top:0;z-index:60}
+    .brand{font-weight:800;color:var(--accent);letter-spacing:1px}
+    .nav-links{display:flex;gap:1rem}
+    .nav-links a{padding:.35rem .6rem;border-radius:.4rem}
+    .profile{display:flex;gap:.75rem;align-items:center}
+    .profile .name{color:var(--muted)}
+
+    .banner{position:relative;height:62vh;min-height:420px;display:flex;align-items:flex-end;padding:3rem 4rem;background-size:cover;background-position:center;border-bottom:1px solid rgba(255,255,255,.02)}
+    .banner::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0.0) 40%, rgba(0,0,0,0.9) 100%)}
+    .banner-inner{position:relative;z-index:2;display:flex;gap:2rem;align-items:flex-end}
+    .banner-poster{width:260px;border-radius:.6rem;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,.6)}
+    .banner-poster img{display:block;width:100%;height:100%;object-fit:cover}
+    .banner-meta{max-width:900px}
+    .banner h1{font-size:2.1rem;margin-bottom:.4rem}
+    .banner p{color:var(--muted);max-width:60ch;margin-bottom:.8rem}
+    .banner .controls{display:flex;gap:.6rem}
+    .btn{background:var(--accent);color:#fff;padding:.6rem 1rem;border-radius:.35rem;border:none;font-weight:700;cursor:pointer}
+    .btn.secondary{background:rgba(255,255,255,.08);color:#fff}
+
+    main{padding-bottom:4rem}
+    .section{padding:1.25rem 1.5rem}
+    .section h2{font-size:1.1rem;margin:0 0 .75rem}
+    .carousel{position:relative}
+    .row{display:grid;grid-auto-flow:column;grid-auto-columns:180px;gap:.75rem;overflow-x:auto;padding:0 .5rem 1rem 0;scroll-snap-type:x mandatory;scroll-behavior:smooth}
+    .row::-webkit-scrollbar{height:9px}
+    .card{background:var(--card);border-radius:.45rem;overflow:hidden;cursor:pointer;scroll-snap-align:start;transform-origin:center;transition:transform .18s ease}
+    .card img{display:block;width:100%;height:270px;object-fit:cover}
+    .card .label{padding:.45rem .5rem .75rem;font-size:.86rem;color:var(--muted)}
+    .card:hover{transform:translateY(-6px) scale(1.04)}
+
+    .arrow{position:absolute;top:40%;transform:translateY(-50%);width:48px;height:80px;background:linear-gradient(90deg,rgba(0,0,0,0.6),rgba(0,0,0,0.18));border:none;color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.6rem;cursor:pointer;z-index:50;border-radius:4px}
+    .arrow.left{left:.5rem}
+    .arrow.right{right:.5rem}
+
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;padding:2rem;z-index:200}
+    .overlay.active{display:flex}
+    .player{width:94%;max-width:1200px;border-radius:.6rem;overflow:hidden;background:#000}
+    .player iframe{width:100%;height:62vh;border:0}
+    .player .meta{padding:1rem 1.25rem;background:#0d0d0d;color:var(--muted);display:flex;justify-content:space-between;align-items:center}
+    .close{font-size:1.6rem;color:#fff;cursor:pointer}
+
+    @media (min-width:1200px){.row{grid-auto-columns:200px}.card img{height:300px}}
+    @media (max-width:900px){.banner{padding:2rem 1.25rem;height:48vh}.banner-inner{flex-direction:column;align-items:flex-start}.banner-poster{width:170px}.banner h1{font-size:1.4rem}.row{grid-auto-columns:140px}.card img{height:200px}}
+    @media (max-width:500px){.row{grid-auto-columns:120px}.card img{height:170px}}
+  </style>
+</head>
+<body>
+  <script>
+    // protect page: only allow when nf_current_user exists and user is subscribed
+    const users = JSON.parse(localStorage.getItem('nf_users') || '{}');
+    const cur = localStorage.getItem('nf_current_user');
+    if (!cur || !users[cur] || !users[cur].subscribed) {
+      // redirect to login if not allowed
+      alert('You must be signed in with an active subscription to view this page.');
+      location.href = 'login.html';
+    }
+  </script>
+
+  <nav class="nav">
+    <div class="brand">NETFLIX</div>
+    <div class="nav-links">
+      <a href="#popular">Popular</a>
+      <a href="#trending">Trending</a>
+      <a href="#action">Action</a>
+      <a href="#series">Series</a>
+      <a href="#docs">Documentaries</a>
+    </div>
+
+    <div class="profile">
+      <div class="name" id="profileName">Hello</div>
+      <button class="btn secondary" id="signOut">Sign out</button>
+    </div>
+  </nav>
+
+  <header id="banner" class="banner" style="background-image: url('https://m.media-amazon.com/images/I/81p+xe8cbnL._AC_SL1500_.jpg')">
+    <div class="banner-inner">
+      <div class="banner-poster">
+        <img id="bannerPoster" src="https://m.media-amazon.com/images/I/81p+xe8cbnL._AC_SY679_.jpg" alt="Featured poster">
+      </div>
+      <div class="banner-meta">
+        <h1 id="bannerTitle">Inception</h1>
+        <p id="bannerOverview">A thief who steals corporate secrets uses dream-sharing technology to infiltrate the subconscious of his targets.</p>
+        <div class="controls">
+          <button class="btn" id="bannerPlay">Play Trailer</button>
+          <button class="btn secondary" id="moreInfo">More Info</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="overlay" id="overlay">
+    <div class="player" role="dialog" aria-modal="true">
+      <iframe id="playerFrame" src="" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+      <div class="meta">
+        <div id="playerTitle">Title</div>
+        <div style="display:flex;gap:.75rem;align-items:center">
+          <div id="playerInfo" style="font-size:.95rem;color:var(--muted)"></div>
+          <div class="close" onclick="closeOverlay()">✕</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main>
+    <div id="rowsContainer"></div>
+  </main>
+
+  <script>
+    // set profile name
+    const nfUsers = JSON.parse(localStorage.getItem('nf_users') || '{}');
+    const current = localStorage.getItem('nf_current_user');
+    if (current && nfUsers[current]) {
+      document.getElementById('profileName').textContent = nfUsers[current].name;
+    }
+
+    // sign out
+    document.getElementById('signOut').addEventListener('click', () => {
+      localStorage.removeItem('nf_current_user');
+      alert('Signed out.');
+      location.href = 'home.html';
+    });
+
+    // data: same as earlier, condensed
+    const data = [
+      {
+        id: 'popular', title: 'Popular on Netflix', items: [
+          {t:'Inception', p:'https://m.media-amazon.com/images/I/81p+xe8cbnL._AC_SY679_.jpg', u:'https://www.youtube.com/embed/YoHD9XEInc0?autoplay=1'},
+          {t:'The Dark Knight', p:'https://m.media-amazon.com/images/I/71pVHwzjQXL._AC_SY679_.jpg', u:'https://www.youtube.com/embed/EXeTwQWrcwY?autoplay=1'},
+          {t:'Interstellar', p:'https://m.media-amazon.com/images/I/91kFYg4fX3L._AC_SY679_.jpg', u:'https://www.youtube.com/embed/zSWdZVtXT7E?autoplay=1'},
+          {t:'Parasite', p:'https://m.media-amazon.com/images/I/91b0C2YNSZL._AC_SY679_.jpg', u:'https://www.youtube.com/embed/isOGD_7hNIY?autoplay=1'}
+        ]
+      },
+      {
+        id: 'trending', title: 'Trending Now', items: [
+          {t:'1917', p:'https://m.media-amazon.com/images/I/81kMpb7v5FL._AC_SY679_.jpg', u:'https://www.youtube.com/embed/YqNYrYUiMfg?autoplay=1'},
+          {t:'La La Land', p:'https://m.media-amazon.com/images/I/81Zc0FbayJL._AC_SY679_.jpg', u:'https://www.youtube.com/embed/0pdqf4P9MB8?autoplay=1'},
+          {t:'Dune', p:'https://m.media-amazon.com/images/I/81d1Kz3nqEL._AC_SY679_.jpg', u:'https://www.youtube.com/embed/8g18jFHCLXk?autoplay=1'}
+        ]
+      },
+      {
+        id:'action', title:'Action Movies', items:[
+          {t:'John Wick', p:'https://m.media-amazon.com/images/I/51p1JxkQJvL._AC_SY445_.jpg', u:'https://www.youtube.com/embed/2AUmvWm5ZDQ?autoplay=1'},
+          {t:'Mad Max: Fury Road', p:'https://m.media-amazon.com/images/I/81v+N2m1qGL._AC_SY679_.jpg', u:'https://www.youtube.com/embed/hEJnMQG9ev8?autoplay=1'},
+          {t:'Gladiator', p:'https://m.media-amazon.com/images/I/51A2l8G8VFL._AC_.jpg', u:'https://www.youtube.com/embed/owK1qxDselE?autoplay=1'}
+        ]
+      },
+      {
+        id:'series', title:'Series & Shows', items:[
+          {t:'Stranger Things', p:'https://m.media-amazon.com/images/I/81iw7M6pGPL._AC_SY679_.jpg', u:'https://www.youtube.com/embed/mnd7sFt5c3A?autoplay=1'},
+          {t:'Breaking Bad', p:'https://m.media-amazon.com/images/I/81jE3kN1ZGL._AC_SY679_.jpg', u:'https://www.youtube.com/embed/HhesaQXLuRY?autoplay=1'}
+        ]
+      }
+    ];
+
+    // Build rows
+    const container = document.getElementById('rowsContainer');
+    data.forEach(section=>{
+      const sec = document.createElement('section');
+      sec.className = 'section carousel';
+      sec.id = section.id;
+
+      const heading = document.createElement('h2');
+      heading.textContent = section.title;
+      sec.appendChild(heading);
+
+      // left arrow
+      const left = document.createElement('button');
+      left.className = 'arrow left';
+      left.innerHTML = '◀';
+      left.addEventListener('click', ()=>scrollRow(row, -1));
+      sec.appendChild(left);
+
+      // row wrapper
+      const row = document.createElement('div');
+      row.className = 'row';
+
+      section.items.forEach(item=>{
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <img src="${item.p}" alt="${item.t}" loading="lazy" />
+          <div class="label">${item.t}</div>
+        `;
+        card.addEventListener('click', ()=>selectAndPlay(item.t, item.p, item.u));
+        row.appendChild(card);
+      });
+
+      sec.appendChild(row);
+
+      // right arrow
+      const right = document.createElement('button');
+      right.className = 'arrow right';
+      right.innerHTML = '▶';
+      right.addEventListener('click', ()=>scrollRow(row, 1));
+      sec.appendChild(right);
+
+      container.appendChild(sec);
+    });
+
+    // banner play
+    const bannerPlay = document.getElementById('bannerPlay');
+    const bannerTrailer = 'https://www.youtube.com/embed/YoHD9XEInc0?autoplay=1';
+    bannerPlay.addEventListener('click', ()=>openOverlay(bannerTrailer, document.getElementById('bannerTitle').textContent));
+
+    function selectAndPlay(title, poster, url){
+      // update banner info
+      const banner = document.getElementById('banner');
+      banner.style.backgroundImage = `url('${poster.replace('_SY679_','_SL1500_')}')`;
+      document.getElementById('bannerPoster').src = poster;
+      document.getElementById('bannerTitle').textContent = title;
+      document.getElementById('bannerOverview').textContent = title + ' — Trailer';
+
+      openOverlay(url, title);
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+
+    function scrollRow(row, direction){
+      const cardWidth = row.querySelector('.card').getBoundingClientRect().width + parseFloat(getComputedStyle(row).gap || 12);
+      const visible = row.clientWidth;
+      const scrollAmount = Math.round(visible - cardWidth) * direction;
+      row.scrollBy({left: scrollAmount, behavior:'smooth'});
+    }
+
+    function openOverlay(url, title = ''){
+      document.getElementById('overlay').classList.add('active');
+      const iframe = document.getElementById('playerFrame');
+      iframe.src = url;
+      document.getElementById('playerTitle').textContent = title;
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeOverlay(){
+      document.getElementById('overlay').classList.remove('active');
+      document.getElementById('playerFrame').src = '';
+      document.body.style.overflow = '';
+    }
+
+    document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeOverlay(); });
+    document.getElementById('overlay').addEventListener('click', function(e){ if(e.target === this) closeOverlay(); });
+  </script>
+</body>
+</html>
